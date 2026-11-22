@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <!-- app tile -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <!-- workpiece card -->
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <!-- clip the hatch to the closed region -->
+    <clipPath id="region">
+      <rect x="16" y="16" width="32" height="32" rx="5"/>
+    </clipPath>
+  </defs>
+
+  <!-- inset workpiece / paper -->
+  <rect x="9" y="9" width="46" height="46" rx="7" ry="7" fill="url(#card)" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- the closed region being filled -->
+  <rect x="16" y="16" width="32" height="32" rx="5" ry="5" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
+
+  <!-- signature hatch fill, clipped to the region -->
+  <g clip-path="url(#region)" fill="none" stroke="#e11d48" stroke-width="1.7" stroke-linecap="round">
+    <line x1="16" y1="48" x2="48" y2="16"/>
+    <line x1="16" y1="42" x2="42" y2="16"/>
+    <line x1="16" y1="36" x2="36" y2="16"/>
+    <line x1="16" y1="30" x2="30" y2="16"/>
+    <line x1="22" y1="48" x2="48" y2="22"/>
+    <line x1="28" y1="48" x2="48" y2="28"/>
+    <line x1="34" y1="48" x2="48" y2="34"/>
+  </g>
+
+  <!-- plotter pen, nib resting on the region's top-right corner (drawing the last hatch) -->
+  <g transform="translate(44 20) rotate(-45)" stroke-linejoin="round" stroke-linecap="round">
+    <!-- barrel -->
+    <rect x="5" y="-2.7" width="15" height="5.4" rx="1.6" fill="#f59e0b" stroke="#92400e" stroke-width="0.9"/>
+    <!-- ferrule band -->
+    <rect x="5" y="-2.7" width="3.2" height="5.4" fill="#92400e"/>
+    <!-- nib -->
+    <path d="M5 -2.2 L0 0 L5 2.2 Z" fill="#fbbf24" stroke="#92400e" stroke-width="0.9"/>
+    <!-- ink point -->
+    <circle cx="0" cy="0" r="1.5" fill="#fde68a" stroke="#92400e" stroke-width="0.7"/>
+  </g>
+</svg>

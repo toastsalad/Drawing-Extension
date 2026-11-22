@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>Plotter-Helper (Plotter G-code + Hatch Fill)</name>
+    <id>community.plotter-helper</id>
+    <param name="tab" type="notebook">
+
+        <!-- ============ MODE ============ -->
+        <page name="mode" gui-text="Mode">
+            <hbox>
+                <image>plotter-helper-icon.svg</image>
+                <vbox>
+                    <label appearance="header">Plotter-Helper</label>
+                </vbox>
+            </hbox>
+            <separator/>
+            <label appearance="header">Operation</label>
+            <separator />
+            <param name="mode" type="optiongroup" appearance="radio" gui-text="Operation">
+                <option value="hatch">Hatch fill → G-code (fills closed regions)</option>
+                <option value="cut">Draw / cut outlines → G-code (outlines only)</option>
+            </param>
+            <param name="include_outlines" type="bool" gui-text="Draw the outlines too (Hatch mode)" indent="1">true</param>
+            <spacer/>
+            <label appearance="header">Preview</label>
+            <separator />
+            <param name="preview" type="bool" gui-text="Emit a preview SVG file (next to G-code)">true</param>
+            <param name="show_outlines_in_preview" type="bool" gui-text="Include original outlines in preview" indent="1">true</param>
+        </page>
+
+        <!-- ============ OUTPUT ============ -->
+        <page name="output" gui-text="Output">
+            <label appearance="header">Output Target</label>
+            <separator />
+            <param name="output_target" type="optiongroup" appearance="radio" gui-text="Output Target">
+                <option value="disk">Save to disk</option>
+                <option value="upload">Upload to Klipper (Moonraker)</option>
+                <option value="upload-start">Upload to Klipper and start print</option>
+            </param>
+            <spacer/>
+            <label appearance="header">File (disk)</label>
+            <separator />
+            <param name="directory" type="path" gui-text="Output Directory" mode="folder">-- Choose Output Directory --</param>
+            <param name="filename" type="string" gui-text="Filename">output.gcode</param>
+            <param name="filename_suffix" type="bool" gui-text="Add Numeric Suffix to Filename" indent="1">true</param>
+            <spacer/>
+            <label appearance="header">Klipper / Moonraker</label>
+            <separator />
+            <param name="moonraker_url" type="string" gui-text="Moonraker URL">http://192.168.1.50</param>
+            <param name="moonraker_api_key" type="string" gui-text="Moonraker API Key (optional)"></param>
+            <param name="moonraker_filename" type="string" gui-text="G-code Filename on Printer">plotter-helper.gcode</param>
+            <param name="klipper_thumbnail" type="bool" gui-text="Embed a PNG preview thumbnail" gui-description="Embeds a PNG (outlines + hatch) as a PrusaSlicer-style thumbnail so Mainsail/Fluidd/KlipperScreen show it.">true</param>
+            <separator/>
+            <label>Tiling always writes one file per tile to disk (upload is single-file).</label>
+        </page>
+
+        <!-- ============ HATCH FILL (nested) ============ -->
+        <page name="hatch" gui-text="Hatch Fill">
+            <param name="hatch_sub" type="notebook">
+
+                <page name="hatch_basic" gui-text="Basic">
+                    <label appearance="header">Fill Style &amp; Spacing</label>
+                    <separator />
+                    <param name="fill_style" type="optiongroup" appearance="combo" gui-text="Fill Style">
+                        <option value="parallel">Parallel lines (classic hatch)</option>
+                        <option value="wave">Wave / sine lines</option>
+                        <option value="concentric">Concentric / contour rings</option>
+                        <option value="spiral">Spiral (Archimedean)</option>
+                        <option value="hilbert">Hilbert space-filling curve</option>
+                        <option value="serpentine">Serpentine (lawnmower, fewest lifts)</option>
+                        <option value="fermat">Fermat spiral (one stroke)</option>
+                        <option value="moire">Moire (two interfering screens)</option>
+                        <option value="peano">Peano space-filling curve</option>
+                        <option value="engrave">Engraving (tone layers near the edge)</option>
+                        <option value="contourspiral">Contour spiral (one stroke, no lifts)</option>
+                        <option value="hexlattice">Hex lattice (three families)</option>
+                        <option value="squarespiral">Square spiral</option>
+                        <option value="truchet">Truchet tiles</option>
+                        <option value="gosper">Gosper flowsnake</option>
+                        <option value="dragon">Dragon curve</option>
+                        <option value="shade">Shade by an image</option>
+                        <option value="stipple">Stipple by an image</option>
+                        <option value="scribble">Scribble by an image</option>
+                    </param>
+                    <param name="hatch_spacing" type="float" min="-99999" max="99999" precision="2" gui-text="Hatch Spacing">3.0</param>
+                    <param name="hatch_units" type="optiongroup" appearance="combo" gui-text="Spacing Units">
+                        <option value="mm">mm</option>
+                        <option value="in">inch</option>
+                        <option value="px">px</option>
+                    </param>
+                    <param name="hatch_angle" type="float" min="-99999" max="99999" precision="2" gui-text="Hatch Angle (degrees)">45</param>
+                    <param name="cross_hatch" type="bool" gui-text="Crosshatch (+90° second pass)">false</param>
+                    <spacer/>
+                    <label appearance="header">Wave Style Options</label>
+                    <separator />
+                    <param name="wave_amplitude" type="float" min="-99999" max="99999" precision="2" gui-text="Wave Amplitude">1.0</param>
+                    <param name="wave_wavelength" type="float" min="-99999" max="99999" precision="2" gui-text="Wave Wavelength (0 = 2× spacing)">0</param>
+                </page>
+
+                <page name="hatch_adv" gui-text="Advanced">
+                    <label appearance="header">Connect Ends (reduce pen lifts)</label>
+                    <separator />
+                    <param name="connect_ends" type="bool" gui-text="Connect Nearby Ends">true</param>
+                    <param name="hatch_scope" type="float" min="-99999" max="99999" precision="2" gui-text="Range of end connections">3.0</param>
+                    <spacer/>
+                    <label appearance="header">Inset</label>
+                    <separator />
+                    <param name="inset" type="bool" gui-text="Inset Fill from Edges">true</param>
+                    <param name="inset_dist" type="float" min="-99999" max="99999" precision="2" gui-text="Inset Distance">0.5</param>
+                    <spacer/>
+                    <label appearance="header">Tolerance &amp; ViewBox</label>
+                    <separator />
+                    <param name="hatch_tolerance" type="float" min="-99999" max="99999" precision="2" gui-text="Tolerance">2.0</param>
+                    <param name="handle_viewbox" type="bool" gui-text="Scale by SVG viewBox (axidraw-style)">false</param>
+                    <spacer/>
+                    <label appearance="header">Hand-drawn Jitter (any style)</label>
+                    <separator />
+                    <param name="jitter" type="bool" gui-text="Apply seeded jitter">false</param>
+                    <param name="jitter_amount" type="float" min="-99999" max="99999" precision="2" gui-text="Jitter Amount (std-dev)">0.3</param>
+                    <param name="jitter_seed" type="string" gui-text="Jitter Seed (integer)" indent="1">12345</param>
+                </page>
+
+            </param>
+        </page>
+
+        <!-- ============ PEN & MOTION (was "G-code") ============ -->
+        <page name="gcode" gui-text="Pen &amp; Motion">
+            <label appearance="header">Motion &amp; Passes</label>
+            <separator />
+            <param name="unit" type="optiongroup" appearance="radio" gui-text="Unit of Measurement">
+                <option value="mm">millimeters</option>
+                <option value="in">inches</option>
+            </param>
+            <param name="travel_speed" type="float" min="-99999" max="99999" precision="2" gui-text="Travel Speed, pen-up (unit/min)">3000</param>
+            <param name="cutting_speed" type="float" min="-99999" max="99999" precision="2" gui-text="Drawing Speed, pen-down (unit/min)">750</param>
+            <param name="passes" type="int" min="-99999999" max="99999999" gui-text="Passes (retrace count)">1</param>
+            <spacer/>
+            <label appearance="header">Pen Control</label>
+            <separator />
+            <param name="tool_power_command" type="string" gui-text="Pen Down Command">M3 S255;</param>
+            <param name="tool_off_command" type="string" gui-text="Pen Up Command">M5;</param>
+            <param name="dwell_time" type="float" min="-99999" max="99999" precision="2" gui-text="Dwell Time After Pen Down (ms)">0</param>
+            <param name="dwell_after_pen_up" type="float" min="-99999" max="99999" precision="2" gui-text="Dwell Time After Pen Up (ms)">0</param>
+            <spacer/>
+            <label appearance="header">Geometry Tolerance</label>
+            <separator />
+            <param name="approximation_tolerance" type="string" gui-text="Approximation Tolerance (±unit)" gui-description="How closely curves are flattened to line segments. Smaller = smoother but longer G-code.">0.01</param>
+        </page>
+
+        <!-- ============ COORDINATE ============ -->
+        <page name="scaling" gui-text="Coordinate">
+            <label appearance="header">Origin &amp; Orientation</label>
+            <separator />
+            <param name="machine_origin" type="optiongroup" appearance="radio" gui-text="Machine Origin">
+                <option value="bottom-left">bottom-left</option>
+                <option value="center">center</option>
+                <option value="top-left">top-left</option>
+            </param>
+            <param name="invert_y" type="bool" gui-text="Invert Y-Axis">false</param>
+            <spacer/>
+            <label appearance="header">Bed Size (0 = use SVG canvas)</label>
+            <separator />
+            <param name="bed_width" type="float" min="-99999" max="99999" precision="2" gui-text="Bed X Width (unit)">200</param>
+            <param name="bed_height" type="float" min="-99999" max="99999" precision="2" gui-text="Bed Y Length (unit)">200</param>
+            <spacer/>
+            <label appearance="header">Offsets &amp; Scale</label>
+            <separator />
+            <param name="horizontal_offset" type="float" min="-99999" max="99999" precision="2" gui-text="Gcode X Offset">0</param>
+            <param name="vertical_offset" type="float" min="-99999" max="99999" precision="2" gui-text="Gcode Y Offset">0</param>
+            <param name="scaling_factor" type="float" min="-99999" max="99999" precision="2" gui-text="Gcode Scaling Factor">1</param>
+        </page>
+
+        <!-- ============ HEADER / FOOTER ============ -->
+        <page name="header_footer" gui-text="Header / Footer">
+            <label appearance="header">Custom G-code</label>
+            <separator />
+            <param name="header" type="string" appearance="multiline" gui-text="Custom G-code Header" gui-description="Paste multi-line G-code directly (real line breaks are fine). Leave blank for the default header. Remembered between runs."></param>
+            <param name="footer" type="string" appearance="multiline" gui-text="Custom G-code Footer" gui-description="Paste multi-line G-code directly (real line breaks are fine). Leave blank for the default footer. Remembered between runs."></param>
+            <spacer/>
+            <label appearance="header">Job Start / End</label>
+            <separator />
+            <param name="return_home_end" type="bool" gui-text="Return Home When Done (G28)">false</param>
+            <param name="do_tool_off_start" type="bool" gui-text="Lift Pen Before a Job (pen up at start)">true</param>
+            <param name="do_tool_off_end" type="bool" gui-text="Lift Pen After a Job (pen up at end)">true</param>
+        </page>
+
+        <!-- ============ FEATURES (nested) ============ -->
+        <page name="features" gui-text="Features">
+            <param name="features_sub" type="notebook">
+
+                <page name="pen" gui-text="Pen &amp; Color">
+                    <label appearance="header">Pen / dots (ballpoint)</label>
+                    <separator />
+                    <param name="double_pass_short" type="bool" gui-text="Double-pass short closed strokes (dots)" gui-description="Re-traces any closed stroke shorter than the length below a second time without lifting the pen, so small dots deposit enough ink.">false</param>
+                    <param name="double_pass_length" type="float" min="-99999" max="99999" precision="2" gui-text="Double-pass length (mm)">2</param>
+                    <spacer/>
+                    <label appearance="header">Multi-color pen plotting</label>
+                    <separator />
+                    <param name="group_by_color" type="bool" gui-text="Group output by stroke color">false</param>
+                    <param name="pause_between_colors" type="bool" gui-text="Pause between color groups (pen swap)" indent="1">false</param>
+                    <param name="pause_command" type="string" gui-text="Pause Command" indent="1">M0</param>
+                    <spacer/>
+                    <label appearance="header">Per-color / per-pen settings</label>
+                    <separator />
+                    <param name="per_color_config" type="path" gui-text="Per-color config (JSON)" mode="file" filetypes="json" gui-description="Optional JSON of per-pen overrides, keyed by 6-digit hex (e.g. FF0000). Only listed fields override the tab globals; colors not listed are drawn as outlines only. Use 'Save a per-color config template' below to generate one with every field and the current defaults, then edit."></param>
+                    <param name="save_per_color_config" type="bool" gui-text="Save a per-color config template (defaults for each color)" gui-description="Tick this and click Apply to scan the drawing and write 'per-color-config.template.json' into the Output Directory, with every pen color pre-filled with the current global settings. Edit the per-pen overrides in that file, then point 'Per-color config (JSON)' at it. Writes no G-code.">false</param>
+                </page>
+
+                <page name="tiling" gui-text="Tiling">
+                    <label appearance="header">Tiling / paneling (one file per tile)</label>
+                    <separator />
+                    <param name="tile_width" type="float" min="-99999" max="99999" precision="2" gui-text="Tile Width (0 = off)">0</param>
+                    <param name="tile_height" type="float" min="-99999" max="99999" precision="2" gui-text="Tile Height (0 = off)">0</param>
+                    <param name="tile_overlap" type="float" min="-99999" max="99999" precision="2" gui-text="Tile Overlap">0</param>
+                    <param name="tile_alignment_marks" type="bool" gui-text="Draw corner alignment marks" indent="1">false</param>
+                    <param name="tile_mark_size" type="float" min="-99999" max="99999" precision="2" gui-text="Alignment Mark Size">1</param>
+                </page>
+
+                <page name="cutting" gui-text="Cutting &amp; Travel">
+                    <label appearance="header">Cutting (drag-knife / vinyl)</label>
+                    <separator />
+                    <param name="overcut" type="float" min="-99999" max="99999" precision="2" gui-text="Overcut (extend closed paths past start)">0</param>
+                    <param name="inner_before_outer" type="bool" gui-text="Cut inner holes before outer outline">false</param>
+                    <spacer/>
+                    <label appearance="header">Travel optimization</label>
+                    <separator />
+                    <param name="optimize_travel" type="bool" gui-text="Reorder strokes to minimize travel" gui-description="Greedy nearest-neighbor sweep; overrides 'Cut inner holes before outer outline' when on.">false</param>
+                    <param name="optimize_travel_reverse" type="bool" gui-text="Allow reversing strokes to shorten travel" indent="1">true</param>
+                    <param name="connect_outlines" type="bool" gui-text="Join nearby ends through the fill (pen-down)" indent="1" gui-description="When the gap to the next reordered stroke is within the join distance AND the straight connector lies inside the solid (closed-outline) area, draw it pen-down instead of lifting. Reduces pen lifts; for pen plotting / engraving, not drag-knife cutting.">false</param>
+                    <param name="connect_outlines_dist" type="float" min="-99999" max="99999" precision="2" gui-text="Join distance (mm)">2</param>
+                </page>
+
+            </param>
+        </page>
+
+    </param>
+    <effect needs-live-preview="false">
+        <object-type>all</object-type>
+        <effects-menu>
+            <submenu name="Generate Plotter Gcode"/>
+        </effects-menu>
+    </effect>
+    <script>
+        <command location="inx" interpreter="python">plotter-helper.py</command>
+    </script>
+</inkscape-extension>

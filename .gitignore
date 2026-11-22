@@ -1,0 +1,17 @@
+# Build output
+dist/
+release-out/
+**/bin/
+**/obj/
+BenchmarkDotNet.Artifacts/
+
+# IDE
+.vs/
+.idea/
+*.user
+
+# Python cache (inkscape shim)
+__pycache__/
+*.pyc
+AGENTS.md
+*.log

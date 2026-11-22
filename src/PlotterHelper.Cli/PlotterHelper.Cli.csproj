@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>PlotterHelper</AssemblyName>
+    <RootNamespace>PlotterHelper.Cli</RootNamespace>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PlotterHelper.Core\PlotterHelper.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PlotterHelper.Tests" />
+    <InternalsVisibleTo Include="PlotterHelper.Bench" />
+  </ItemGroup>
+
+  <!--
+    Copy the assembled extension into Inkscape's user extensions dir on
+    `dotnet publish`. Off by default so a publish never writes outside the
+    repository; scripts/build-extension.sh turns it on explicitly.
+    Enable with:   -p:InkscapeAutoInstall=true
+    Override dir:  -p:InkscapeExtensionsDir=/path  (or INKSCAPE_EXTENSIONS_DIR env)
+  -->
+  <PropertyGroup>
+    <InkscapeAutoInstall Condition="'$(InkscapeAutoInstall)' == ''">false</InkscapeAutoInstall>
+    <InkscapeExtensionsDir Condition="'$(InkscapeExtensionsDir)' == ''">$(INKSCAPE_EXTENSIONS_DIR)</InkscapeExtensionsDir>
+    <ExtInkscapeSrc>$(MSBuildProjectDirectory)\..\..\inkscape</ExtInkscapeSrc>
+  </PropertyGroup>
+
+  <Target Name="InstallInkscapeExtension" AfterTargets="Publish" Condition="'$(InkscapeAutoInstall)' == 'true' And '$(TargetFramework)' != ''">
+    <!-- Resolve the Inkscape user extensions dir per OS unless overridden. -->
+    <PropertyGroup Condition="'$(InkscapeExtensionsDir)' == '' And '$(OS)' == 'Windows_NT'">
+      <InkscapeExtensionsDir>$(APPDATA)\inkscape\extensions</InkscapeExtensionsDir>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(InkscapeExtensionsDir)' == '' And '$(OS)' != 'Windows_NT'">
+      <InkscapeExtensionsDir>$(HOME)/.config/inkscape/extensions</InkscapeExtensionsDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+      <ExtBinary>$(PublishDir)$(AssemblyName).exe</ExtBinary>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+      <ExtBinary>$(PublishDir)$(AssemblyName)</ExtBinary>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <InkscapeExtFiles Include="$(ExtBinary)" />
+      <InkscapeExtFiles Include="$(ExtInkscapeSrc)\plotter-helper.py" />
+      <InkscapeExtFiles Include="$(ExtInkscapeSrc)\plotter-helper.inx" />
+      <InkscapeExtFiles Include="$(ExtInkscapeSrc)\plotter-helper-icon.svg" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(InkscapeExtFiles)"
+          DestinationFolder="$(InkscapeExtensionsDir)/plotter-helper-extension"
+          SkipUnchangedFiles="true"
+          Condition="'$(InkscapeExtensionsDir)' != ''" />
+
+    <Exec Condition="'$(OS)' != 'Windows_NT' And '$(InkscapeExtensionsDir)' != ''"
+          Command="chmod +x &quot;$(InkscapeExtensionsDir)/plotter-helper-extension/$(AssemblyName)&quot; &quot;$(InkscapeExtensionsDir)/plotter-helper-extension/plotter-helper.py&quot;"
+          IgnoreExitCode="true" />
+
+    <Message Importance="High"
+             Text="Installed PlotterHelper Inkscape extension to $(InkscapeExtensionsDir)/plotter-helper-extension"
+             Condition="'$(InkscapeExtensionsDir)' != ''" />
+  </Target>
+</Project>

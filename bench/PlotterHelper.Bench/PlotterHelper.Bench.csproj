@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    BenchmarkDotNet harness for the PlotterHelper pipeline. References Core + Cli
+    (with InternalsVisibleTo) so it measures the actual production code paths, not a
+    reimplementation. Run flags are documented in BenchProgram.cs (pass help to see
+    them). Output goes to BenchmarkDotNet.Artifacts/.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PlotterHelper.Bench</RootNamespace>
+    <AssemblyName>PlotterHelper.Bench</AssemblyName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <!-- BDN needs a real Release build of itself to host the process. -->
+    <StartupObject>PlotterHelper.Bench.BenchProgram</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PlotterHelper.Core\PlotterHelper.Core.csproj" />
+    <ProjectReference Include="..\..\src\PlotterHelper.Cli\PlotterHelper.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="assets\*.svg" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

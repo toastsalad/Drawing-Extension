@@ -1,0 +1,17 @@
+name: dotnet
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x # match Directory.Build.props TargetFramework
+      # TreatWarningsAsErrors is on in Directory.Build.props, so this is a real
+      # gate and not decoration. Publish is deliberately not run here; release
+      # binaries are built locally, see PUBLISH.md.
+      - run: dotnet build PlotterHelper.sln --configuration Release
+      - run: dotnet test tests/PlotterHelper.Tests/PlotterHelper.Tests.csproj --configuration Release --no-build

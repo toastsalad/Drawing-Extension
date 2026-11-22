@@ -1,0 +1,38 @@
+{
+  "FF0000": {
+    "fillStyle": "concentric",
+    "hatchSpacing": 2,
+    "hatchAngle": 0,
+    "crossHatch": false,
+    "inset": true,
+    "insetDist": 0.5,
+    "connectEnds": true,
+    "hatchScope": 3.0,
+    "hatchTolerance": 2.0,
+    "waveAmplitude": 1.0,
+    "waveWavelength": 0,
+    "jitter": false,
+    "jitterAmount": 0.3,
+    "jitterSeed": 12345,
+    "passes": 2,
+    "passDepth": 1.0,
+    "cuttingSpeed": 300,
+    "travelSpeed": 3000,
+    "overcut": 0,
+    "dwellTime": 0,
+    "dwellAfterPenUp": 0,
+    "toolPowerCommand": "M3 S255;",
+    "toolOffCommand": "M5;"
+  },
+  "0000FF": {
+    "fillStyle": "parallel",
+    "hatchSpacing": 8,
+    "hatchAngle": 45,
+    "passes": 1,
+    "cuttingSpeed": 800
+  },
+  "00FF00": {
+    "fillStyle": "spiral",
+    "hatchSpacing": 1.5
+  }
+}
